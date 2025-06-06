@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pizzaria Delícia - Login Cliente</title>
+    <link rel="stylesheet" href="login-cliente.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Pizzaria Delícia</h1>
+        <h2>Área do Cliente</h2>
+        <div class="form-group">
+            <label for="usuario">Usuário:</label>
+            <input type="text" id="usuario" placeholder="Digite seu usuário">
+        </div>
+        <div class="form-group">
+            <label for="senha">Senha:</label>
+            <input type="password" id="senha" placeholder="Digite sua senha">
+        </div>
+        <button onclick="validarLoginCliente()">Entrar</button>
+        <p class="link-cadastro">Não tem conta? <a href="cadastro.html">Cadastre-se</a></p>
+        <div id="mensagem" class="mensagem hidden"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

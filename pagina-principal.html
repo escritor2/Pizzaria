@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="pizza-line-art-illustration-pizza-silhouette-pizza-logo-free-vector-removebg-preview.png" rel="icon" type="image/png">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <title>Pizzaria Delícia</title>
+</head>
+<body>
+  <div class="container">
+    <h1>PIZZARIA DELÍCIA - SABOR QUE ENCANTA!</h1>
+    <div class="menu">
+        <button onclick="mostrarSecao('cadastro')">
+            <i class="fas fa-pizza-slice icon"></i>Cadastrar Pizza
+        </button>
+        <button onclick="mostrarSecao('consulta')">
+            <i class="fas fa-search icon"></i>Consultar pizzas
+        </button>
+        <button onclick="mostrarSecao('alterar')">
+            <i class="fas fa-edit icon"></i>Alterar Pizza
+        </button>
+        <button onclick="mostrarSecao('pedidos')">
+            <i class="fas fa-clipboard-list icon"></i>Fazer Pedido
+        </button>
+        <button onclick="mostrarSecao('relatorio')">
+            <i class="fas fa-chart-bar icon"></i>Relatórios
+        </button>
+    </div>
+
+    <!-- Mensagens -->
+    <div id="mensagem" class="hidden"></div>
+
+    <!-- Seção de Cadastro de Pizzas -->
+    <div id="cadastro" class="hidden">
+        <h2>Cadastrar Nova Pizza</h2>
+        <div class="form-group">
+            <label for="nome-pizza">Nome da Pizza:</label>
+            <input type="text" id="nome-pizza" placeholder="Ex: Margherita">
+        </div>
+        <div class="form-group">
+            <label for="ingredientes">Ingredientes:</label>
+            <textarea id="ingredientes" placeholder="Liste os ingredientes"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="preco">Preço (R$):</label>
+            <input type="number" id="preco" step="0.01" min="0" placeholder="Ex: 39.90">
+        </div>
+        <button onclick="adicionarPizza()">Salvar Pizza</button>
+    </div>
+
+    <!-- Seção de Consulta do Cardápio -->
+    <div id="consulta" class="hidden">
+        <h2>Cardápio de Pizzas</h2>
+        <input type="text" id="busca" placeholder="Buscar pizza..." oninput="buscarPizza()">
+        <table>
+            <thead>
+                <tr>
+                    <th>Pizza</th>
+                    <th>Ingredientes</th>
+                    <th>Preço</th>
+                </tr>
+            </thead>
+            <tbody id="tabela-pizzas">
+                <!-- Pizzas serão exibidas aqui -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Seção de Alteração de Pizzas -->
+    <div id="alterar" class="hidden">
+        <h2>Alterar Pizza</h2>
+        <input type="text" id="busca-alterar" placeholder="Buscar pizza para alterar" oninput="buscarPizzaParaAlterar()">
+        <div id="form-alterar" class="hidden">
+            <div class="form-group">
+                <label for="novo-nome">Novo Nome:</label>
+                <input type="text" id="novo-nome" placeholder="Novo nome da pizza">
+            </div>
+            <div class="form-group">
+                <label for="novos-ingredientes">Novos Ingredientes:</label>
+                <textarea id="novos-ingredientes" placeholder="Novos ingredientes"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="novo-preco">Novo Preço (R$):</label>
+                <input type="number" id="novo-preco" step="0.01" min="0" placeholder="Novo preço">
+            </div>
+            <button onclick="alterarPizza()">Salvar Alterações</button>
+        </div>
+    </div>
+
+    <!-- Seção de Pedidos -->
+    <div id="pedidos" class="hidden">
+        <h2>Realizar Pedido</h2>
+        <div class="form-group">
+            <label for="cliente">Nome do Cliente:</label>
+            <input type="text" id="cliente" placeholder="Nome do cliente">
+        </div>
+        <div class="form-group">
+            <label for="pizza-pedido">Pizza:</label>
+            <input type="text" id="pizza-pedido" list="lista-pizzas" placeholder="Selecione a pizza">
+            <datalist id="lista-pizzas"></datalist>
+        </div>
+        <div class="form-group">
+            <label for="quantidade">Quantidade:</label>
+            <input type="number" id="quantidade" min="1" value="1">
+        </div>
+        <button onclick="adicionarItemPedido()">Adicionar ao Pedido</button>
+        
+        <h3>Pedido Atual</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Pizza</th>
+                    <th>Quantidade</th>
+                    <th>Preço Unitário</th>
+                    <th>Subtotal</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody id="itens-pedido">
+                <!-- Itens do pedido serão exibidos aqui -->
+            </tbody>
+        </table>
+        
+        <div class="total-pedido">
+            <strong>Total: R$ <span id="total">0.00</span></strong>
+        </div>
+        
+        <button onclick="finalizarPedido()" class="finalizar">Finalizar Pedido</button>
+    </div>
+
+    <!-- Seção de Relatórios -->
+    <div id="relatorio" class="hidden">
+        <h2>Relatórios</h2>
+        <div class="relatorio-buttons">
+            <button onclick="gerarRelatorioMaisVendidas()">Relatório</button>
+        </div>
+        
+        <div id="conteudo-relatorio">
+            <!-- Conteúdo do relatório será exibido aqui -->
+        </div>
+    </div>
+
+    <!-- Relatório de Vendas -->
+    <div id="relatorio-vendas" class="hidden">
+        <h3>Vendas do Dia</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Cliente</th>
+                    <th>Itens</th>
+                    <th>Total</th>
+                    <th>Hora</th>
+                </tr>
+            </thead>
+            <tbody id="tabela-relatorio-vendas">
+                <!-- Relatório será exibido aqui -->
+            </tbody>
+        </table>
+    </div>
+  </div>
+  
+  <script src="script.js"></script>
+</body>
+</html>

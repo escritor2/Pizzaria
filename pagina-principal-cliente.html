@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pizzaria Delícia - Área do Cliente</title>
+    <link rel="stylesheet" href="style-cliente.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Pizzaria Delícia</h1>
+            <button class="btn-sair" onclick="sair()"><i class="fas fa-sign-out-alt"></i> Sair</button>
+        </header>
+
+        <nav>
+            <button onclick="mostrarCardapio()"><i class="fas fa-pizza-slice"></i> Cardápio</button>
+            <button onclick="mostrarPedido()"><i class="fas fa-shopping-cart"></i> Meu Pedido</button>
+        </nav>
+
+        <main>
+            <div id="cardapio-section">
+                <h2>Cardápio</h2>
+                <div class="busca">
+                    <input type="text" id="busca-pizza" placeholder="Buscar pizza...">
+                    <button onclick="buscarPizzas()"><i class="fas fa-search"></i></button>
+                </div>
+                <div id="lista-pizzas" class="pizza-grid"></div>
+            </div>
+
+            <div id="pedido-section" class="hidden">
+                <h2>Meu Pedido</h2>
+                <div id="itens-pedido"></div>
+                <div class="total-pedido">
+                    <h3>Total: R$ <span id="total-pedido">0.00</span></h3>
+                    <button onclick="finalizarPedido()">Finalizar Pedido</button>
+                </div>
+            </div>
+        </main>
+
+        <div id="mensagem" class="mensagem hidden"></div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+    // --- Funções para a área do cliente ---
+    let cardapioCliente = [];
+    let pedidoCliente = [];
+
+    // Carregar cardápio do localStorage
+    function carregarCardapioCliente() {
+        cardapioCliente = JSON.parse(localStorage.getItem("cardapio")) || [];
+    }
+
+    // Exibir cardápio
+    function mostrarCardapio() {
+        document.getElementById("cardapio-section").classList.remove("hidden");
+        document.getElementById("pedido-section").classList.add("hidden");
+        exibirPizzas(cardapioCliente);
+    }
+
+    // Exibir pedido
+    function mostrarPedido() {
+        document.getElementById("cardapio-section").classList.add("hidden");
+        document.getElementById("pedido-section").classList.remove("hidden");
+        atualizarPedidoCliente();
+    }
+
+    // Buscar pizzas
+    function buscarPizzas() {
+        const termo = document.getElementById("busca-pizza").value.toLowerCase();
+        const filtradas = cardapioCliente.filter(pizza => pizza.nome.toLowerCase().includes(termo));
+        exibirPizzas(filtradas);
+    }
+
+    // Exibir pizzas no cardápio
+    function exibirPizzas(lista) {
+        const listaDiv = document.getElementById("lista-pizzas");
+        listaDiv.innerHTML = "";
+        if (lista.length === 0) {
+            listaDiv.innerHTML = '<p style="text-align:center;">Nenhuma pizza encontrada.</p>';
+            return;
+        }
+        lista.forEach(pizza => {
+            const card = document.createElement("div");
+            card.className = "pizza-item";
+            card.innerHTML = `
+                <h3>${pizza.nome}</h3>
+                <p>${pizza.ingredientes}</p>
+                <p class="price-tag">R$ ${pizza.preco.toFixed(2)}</p>
+                <button onclick="adicionarAoPedido('${pizza.nome}')"><i class='fas fa-plus'></i> Adicionar</button>
+            `;
+            listaDiv.appendChild(card);
+        });
+    }
+
+    // Adicionar pizza ao pedido
+    function adicionarAoPedido(nomePizza) {
+        const pizza = cardapioCliente.find(p => p.nome === nomePizza);
+        if (!pizza) return;
+        const item = pedidoCliente.find(i => i.nome === nomePizza);
+        if (item) {
+            item.quantidade += 1;
+        } else {
+            pedidoCliente.push({ nome: pizza.nome, preco: pizza.preco, quantidade: 1 });
+        }
+        exibirMensagem("Pizza adicionada ao pedido!", "sucesso");
+        atualizarPedidoCliente();
+    }
+
+    // Atualizar exibição do pedido
+    function atualizarPedidoCliente() {
+        const itensDiv = document.getElementById("itens-pedido");
+        itensDiv.innerHTML = "";
+        let total = 0;
+        if (pedidoCliente.length === 0) {
+            itensDiv.innerHTML = '<p style="text-align:center;">Seu pedido está vazio.</p>';
+        } else {
+            const tabela = document.createElement("table");
+            tabela.innerHTML = `
+                <thead><tr><th>Pizza</th><th>Qtd</th><th>Preço</th><th>Subtotal</th><th></th></tr></thead>
+                <tbody></tbody>
+            `;
+            const tbody = tabela.querySelector("tbody");
+            pedidoCliente.forEach((item, idx) => {
+                const subtotal = item.preco * item.quantidade;
+                total += subtotal;
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${item.nome}</td>
+                    <td>${item.quantidade}</td>
+                    <td>R$ ${item.preco.toFixed(2)}</td>
+                    <td>R$ ${subtotal.toFixed(2)}</td>
+                    <td><button onclick="removerItemPedidoCliente(${idx})">Remover</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+            tabela.appendChild(tbody);
+            itensDiv.appendChild(tabela);
+        }
+        document.getElementById("total-pedido").textContent = total.toFixed(2);
+    }
+
+    // Remover item do pedido
+    function removerItemPedidoCliente(idx) {
+        pedidoCliente.splice(idx, 1);
+        atualizarPedidoCliente();
+    }
+
+    // Finalizar pedido
+    function finalizarPedido() {
+        if (pedidoCliente.length === 0) {
+            exibirMensagem("Adicione pizzas ao pedido!", "erro");
+            return;
+        }
+        let pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
+        const novoPedido = {
+            cliente: "Cliente",
+            itens: pedidoCliente.map(i => ({ pizza: i.nome, quantidade: i.quantidade, precoUnitario: i.preco, subtotal: i.preco * i.quantidade })),
+            total: pedidoCliente.reduce((acc, i) => acc + i.preco * i.quantidade, 0),
+            data: new Date().toLocaleString(),
+            status: "Pendente"
+        };
+        pedidos.push(novoPedido);
+        localStorage.setItem("pedidos", JSON.stringify(pedidos));
+        pedidoCliente = [];
+        atualizarPedidoCliente();
+        exibirMensagem("Pedido realizado com sucesso!", "sucesso");
+    }
+
+    // Sair
+    function sair() {
+        window.location.href = "login-cliente.html";
+    }
+
+    // Mensagem
+    function exibirMensagem(texto, tipo) {
+        const mensagem = document.getElementById("mensagem");
+        mensagem.textContent = texto;
+        mensagem.className = `mensagem ${tipo}`;
+        mensagem.classList.remove("hidden");
+        setTimeout(() => {
+            mensagem.classList.add("hidden");
+        }, 2500);
+    }
+
+    // Inicialização
+    document.addEventListener("DOMContentLoaded", function() {
+        carregarCardapioCliente();
+        mostrarCardapio();
+    });
+    </script>
+</body>
+</html>

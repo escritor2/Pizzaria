@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pizzaria Senai - Login</title>
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+    <div id="login" class="container">
+        <h1>Bem-vindo a nossa pizzaria</h1>
+        <h2>Faça login para continuar</h2>
+        <div class="form-group">
+            <label for="usuario">Usuário:</label>
+            <input type="text" id="usuario" placeholder="Digite seu usuário">
+        </div>
+        <div class="form-group">
+            <label for="senha">Senha:</label>
+            <input type="password" id="senha" placeholder="Digite sua senha">
+        </div>
+        <button onclick="validarLogin()">Entrar</button>
+        <p class="login-link">Não tem conta? <a href="cadastro.html">Cadastre-se</a></p>
+        <p id="mensagem" class="mensagem hidden"></p>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
